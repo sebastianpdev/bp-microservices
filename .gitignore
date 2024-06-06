@@ -1,0 +1,12 @@
+user-service/.gradle
+user-service/build
+
+account-service/.gradle
+account-service/build
+
+!gradle/wrapper/gradle-wrapper.jar
+
+*.idea
+*.iws
+*.iml
+*.ipr

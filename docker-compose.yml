@@ -1,0 +1,81 @@
+version: "3.8"
+services:
+  zookeeper:
+    image: bitnami/zookeeper
+    restart: always
+    ports:
+      - "2181:2181"
+    volumes:
+      - "zookeeper_data:/bitnami"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+      - pichinchaBankNet
+  kafka:
+    image: bitnami/kafka
+    ports:
+      - "9092:9092"
+    restart: always
+    volumes:
+      - "kafka_data:/bitnami"
+    environment:
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+    depends_on:
+      - zookeeper
+    networks:
+      - pichinchaBankNet
+  db:
+    image: postgres:14.5
+    container_name: postgres14
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - pichinchaBankNet
+
+  user-service:
+    image: user-app
+    build:
+      context: ./user-service
+      dockerfile: ../Dockerfile
+    container_name: user-service
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "8081:8081"
+    networks:
+      - pichinchaBankNet
+
+  account-service:
+    image: account-app
+    build:
+      context: ./account-service
+      dockerfile: ../Dockerfile
+    container_name: account-service
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "8082:8082"
+    networks:
+      - pichinchaBankNet
+
+volumes:
+  zookeeper_data:
+    driver: local
+  kafka_data:
+    driver: local
+  db_data:
+   
+networks:
+  pichinchaBankNet:
+    driver: bridge
