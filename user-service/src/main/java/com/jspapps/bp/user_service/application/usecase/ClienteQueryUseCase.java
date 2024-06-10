@@ -2,10 +2,12 @@ package com.jspapps.bp.user_service.application.usecase;
 
 import com.jspapps.bp.user_service.application.in.IClienteQueryUseCase;
 import com.jspapps.bp.user_service.domain.event.IAccountEventHandler;
+import com.jspapps.bp.user_service.domain.exception.ClienteServiceErrorMessage;
 import com.jspapps.bp.user_service.domain.model.AccountVerifiedCommand;
 import com.jspapps.bp.user_service.domain.model.ClienteQuery;
 import com.jspapps.bp.user_service.domain.model.CreateAccountCommand;
 import com.jspapps.bp.user_service.domain.repository.IClienteQueryDAO;
+import com.jspapps.bp.user_service.infrastructure.exception.ClienteServiceException;
 import com.jspapps.bp.user_service.infrastructure.util.annotation.UseCase;
 import lombok.AllArgsConstructor;
 
@@ -29,6 +31,8 @@ public class ClienteQueryUseCase implements IClienteQueryUseCase {
             accountVerifiedCommand.setEstado(createAccountCommand.getEstado());
             accountVerifiedCommand.setClienteId(clienteQuery.getId());
             accountEventHandler.createAccount(accountVerifiedCommand);
+        } else {
+            throw new ClienteServiceException(ClienteServiceErrorMessage.CLIENTE_NO_EXISTE);
         }
     }
 }
